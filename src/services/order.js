@@ -174,6 +174,7 @@ export const constructBestSellingProductsPerWeek = async () => {
     });
 
     // Validamos si quedaron categorias pendientes por mostrar
+    console.info("Tiendas:", ordersInStore);
     for (const category of categoriesList) {
       let limitCount = 10;
       let countProducts = category?.products.length;
