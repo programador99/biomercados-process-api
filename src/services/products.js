@@ -234,7 +234,7 @@ const addImageInProduct = (product) => {
   let image = "https://beta.biomercados.com.ve/media/catalog/product/placeholder/default/bio_placeholder.webp";
 
   if (product.media_gallery_entries[0]) {
-    image = baseUrl + prefixImagePath + product.media_gallery_entries[0].file.replace('.jpeg' || '.png', '.webp');
+    image = baseUrl + prefixImagePath + product.media_gallery_entries[0].file;//.replace('.jpeg' || '.png', '.webp');
   }
   delete product.media_gallery_entries;
   return image;
