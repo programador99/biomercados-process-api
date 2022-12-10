@@ -4,4 +4,4 @@ const storeSchema = new mongoose.Schema({
   store_id: Number,
   storeViews: Array
 });
-module.exports = mongoose.model('Store', storeSchema);
+export default mongoose.model('Store', storeSchema);

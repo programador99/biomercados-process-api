@@ -84,6 +84,7 @@ const formatProducts = (products) => {
 }
 
 
+
 export const constructBestSellingProductsPerWeek = async () => {
   let orders = await getAndSaveAllOrdersInWeek();
 
@@ -101,6 +102,14 @@ export const constructBestSellingProductsPerWeek = async () => {
   }
 
   await ProductMoreSeller.deleteMany();
+    const storesViewsId = (await getStores()).map(store => store.storeViews[0].id);
+
+    // fill listOrders empty for store
+    for (const store of storesViewsId) {
+      if(!listOrdersForStore[store]) {
+        listOrdersForStore[store] = [];
+      }
+    }
 
   for (const ordersInStore in listOrdersForStore) {
     orders = listOrdersForStore[ordersInStore]
@@ -161,7 +170,6 @@ export const constructBestSellingProductsPerWeek = async () => {
       categoriesList[i].products = orderProducts.slice(0, 9).map(product => product._id);
     }
 
-    const storesViewsId = (await getStores()).map(store => store.storeViews[0].id);
     const productsBioInsuperables = await getProductsBioInsuperables();
 
     // for (const storeViewsId of storesViewsId) {
@@ -181,7 +189,7 @@ export const constructBestSellingProductsPerWeek = async () => {
       let residualCountProducts = Math.abs(countProducts - limitCount);
 
       if (residualCountProducts > 0) {
-        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts).map(product => product._id);
+        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts);//.map(product => product._id);
         const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
         categoriesList[indexCategoryPrincipal].products = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
       }

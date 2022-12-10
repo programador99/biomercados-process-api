@@ -4,6 +4,8 @@ import ProductMoreSeller from '../models/productsMoreSeller.js'
 import TemporalProduct from "../models/temporalProducts"
 import { getCategoryForId } from "./category";
 import axios from 'axios';
+import { getStoreByViewId } from "./store";
+import product from "../models/product";
 
 const baseUrl = process.env.MEDIA_URL_MAGENTO || 'https://beta.biomercados.com.ve/media/'
 const prefixImagePath = "catalog/product/cache/f7518a5bb674ebdb0160bf37e33f351f";
@@ -13,7 +15,7 @@ const urlIntegrator = process.env.URL_INTEGRATOR
 export const constructProducts = async () => {
   const quantityProductsTotal = await getQuantityProducts();
   const quantityForProcess = 100;
-  console.log('construyendo productos');
+  console.log('construyendo productos...');
   const sectionsForJob = createSectionsForProducts(quantityProductsTotal, quantityForProcess);
 
   let products = [];
@@ -30,6 +32,7 @@ export const constructProducts = async () => {
   const storesCode = await getSitesStore();
 
   let indexSection = 0;
+  console.info("Construyendo atributos...");
   const customAttributesMap = await constructCustomAtributes();
   for await (const section of sectionsForJob) {
     products = await TemporalProduct.find({}, null, { skip: indexSection * quantityForProcess, limit: quantityForProcess });
@@ -135,16 +138,17 @@ const addCategories = async (product) => {
 const addCustomAtributes = (product, customAttributesMap) => {
   if (product.custom_attributes.length > 0) {
 
-    const sponsoredNumber = parseInt(
+    const sponsored = getBooleanValue(parseInt(
       product.custom_attributes.filter(
         (attribute) => attribute.attribute_code == "patrocinado"
       )[0]?.value
-    )
-    const bioinsuperableNumber = parseInt(
+    ));
+
+    const bioinsuperable = getBooleanValue(parseInt(
       product.custom_attributes.filter(
         (attribute) => attribute.attribute_code == "bioinsuperable"
       )[0]?.value
-    )
+    ));
 
     let brand = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "marca"
@@ -182,33 +186,39 @@ const addCustomAtributes = (product, customAttributesMap) => {
       brand = null;
     }
 
-    let isAgeRestricted = parseInt(
+    // Evalua un valor y devuelve un <Boolean>
+    let isAgeRestricted = getBooleanValue(parseInt(
       product.custom_attributes.filter(
         (attribute) => attribute.attribute_code == "isagerestricted"
       )[0]?.value
-    )
+    ));
 
-    let sponsored = false;
-    let bioinsuperable = false;
+    // let sponsored = false;
+    // let bioinsuperable = false;
 
-    if (sponsoredNumber == 1) {
-      sponsored = true;
-    }
+    // if (sponsoredNumber == 1) {
+    //   sponsored = true;
+    // }
 
-    if (sponsoredNumber == 1) {
-      bioinsuperable = true;
-    }
+    // if (sponsoredNumber == 1) {
+    //   bioinsuperable = true;
+    // }
 
-    if (isAgeRestricted == 1) {
-      isAgeRestricted = true;
-    } else {
-      isAgeRestricted = false;
-    }
+    // if (isAgeRestricted == 1) {
+    //   isAgeRestricted = true;
+    // } else {
+    //   isAgeRestricted = false;
+    // }
+
     //comentar para ver los demas custom attributes
     delete product.custom_attributes
     return { sponsored, bioinsuperable, brand, origin, packing, isAgeRestricted }
   }
 }
+
+const getBooleanValue = (value) => {
+  return value === 1;
+};
 
 const addProductStores = (storesCode, product) => {
   let stores = []
@@ -322,6 +332,36 @@ export const getProductforSku = async (sku) => {
   return await Product.findOne({ sku }, { __v: 0 });
 }
 
-export const getProductforCategory = async (categoryId, storeId) => {
-  return await Product.find({ categories: { $elemMatch: { id: categoryId } }, stores: { $elemMatch: { id: storeId, stock: { $gt: 0 } } } }, { __v: 0 });
+export const getProductforCategory = async (categoryId, storeViewId) => {
+  const storeId = await getStoreByViewId(storeViewId);
+  const categoryFilter = { categories: { $elemMatch: { id: categoryId } }, stores: { $elemMatch: { id: storeId }, $elemMatch: { stock: { $gt: 0 } } } };
+
+  // Si la categoria es licores, solo ubicara productos 
+  // que esten solo para esa categoria
+  // if (categoryId === 18) {
+  //   categoryFilter = {
+  //     ...categoryFilter,
+  //     categories: {
+  //       ...categoryFilter.categories,
+  //       $size: 3
+  //     }
+  //   };
+  // }
+
+  let products = await Product.find(categoryFilter, { __v: 0 });
+
+  products = products.map(product => {
+    let countParentInProductCategory = product.categories.filter(category => category.isParent === true);
+
+    // Solo debe existe una categoria padre asociada al producto
+    if (countParentInProductCategory && countParentInProductCategory.length === 1) {
+      return product;
+    } else {
+      return null;
+    }
+
+    // return null;
+  }).filter(product => product);
+
+  return products;
 };

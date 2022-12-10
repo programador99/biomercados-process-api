@@ -47,3 +47,10 @@ export const setFrequentQuestions = async (frequentQuestion) => {
     return frequentQuestions;
   }
 };
+
+export const getStoreByViewId = async (viewId) => {
+  if(viewId && viewId > 0) {
+    const store = await Store.find({ storeView: { $elementMatch: { id: viewId } } }, { __v: 0, _id: 0 });
+    return store[0].store_id;
+  }
+}

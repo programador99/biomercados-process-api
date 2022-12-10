@@ -10,21 +10,23 @@ router.get("/create", async (req, res) => {
   try {
     registerLogInfo('construyendo productos');
     const products = await constructProducts().catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
     });
-    const response = await synchronizeProducts().catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+
+    // Actualizando unidades
+    synchronizeProducts().catch(e => {
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
     res.status(200).json(products);
-  }catch (error) {
+  } catch (error) {
     if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
@@ -36,18 +38,18 @@ router.get("/create", async (req, res) => {
 })
 
 router.get("/category", async (req, res) => {
-  try {    
+  try {
     registerLogInfo('construyendo categorias');
     let categories = await constructCategories().catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
     res.status(200).json(categories);
   } catch (error) {
-        if (error.code && error.message) {
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
@@ -58,18 +60,18 @@ router.get("/category", async (req, res) => {
 })
 
 router.get('/synchronize', async (req, res) => {
-  try {    
+  try {
     registerLogInfo('sincronizando productos');
     let response = await synchronizeProducts().catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
     res.status(200).json(response);
   } catch (error) {
-        if (error.code && error.message) {
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
@@ -80,24 +82,26 @@ router.get('/synchronize', async (req, res) => {
 })
 
 router.post('/update', async (req, res) => {
-  try {    
-  registerLogInfo('actualizando productos');
-  const { update } = req.body;
-    
-    if(!update) {
+  try {
+    registerLogInfo('actualizando productos');
+    const { update } = req.body;
+
+    if (!update) {
       throw { code: 400, message: "Debe enviar un payload" }
     }
 
     let response = await updateProducts(update).catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
+
+    console.info(update)
     res.status(200).json(response);
   } catch (error) {
-        if (error.code && error.message) {
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
@@ -108,26 +112,26 @@ router.post('/update', async (req, res) => {
 })
 
 router.post('/create-for-sku', async (req, res) => {
-  try {   
-  registerLogInfo('creando productos por sku');
-  const { update } = req.body;
-    
-    if(!update) {
+  try {
+    registerLogInfo('creando productos por sku');
+    const { update } = req.body;
+
+    if (!update) {
       throw { code: 400, message: "Debe enviar un payload" }
     }
-    
+
     await constructProductsForSku(update).catch(e => {
       console.log(e);
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
     res.status(200).json('created');
   } catch (error) {
- 
-        if (error.code && error.message) {
+
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
@@ -138,24 +142,24 @@ router.post('/create-for-sku', async (req, res) => {
 
 })
 router.put('/update-for-sku', async (req, res) => {
-  try {    
-  registerLogInfo('actualizando productos por sku');
-  const { update } = req.body;
-    
-    if(!update) {
+  try {
+    registerLogInfo('actualizando productos por sku');
+    const { update } = req.body;
+
+    if (!update) {
       throw { code: 400, message: "Debe enviar un payload" }
     }
-    
+
     await updateProductsForSku(update).catch(e => {
-        if (e.response.status && e.response.data.message) {
-          throw { code: e.response.status, message: e.response.data.message };
-        } else {
-          throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-        }
-      });
+      if (e.response.status && e.response.data.message) {
+        throw { code: e.response.status, message: e.response.data.message };
+      } else {
+        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+      }
+    });
     res.status(200).json('update');
   } catch (error) {
-        if (error.code && error.message) {
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
