@@ -16,10 +16,11 @@ const getCategoryById = async (categoryId) => {
 }
 
 export const constructCategories = async () => {
-  const url = "rest/V1/categories?fields=";
-  let categories = (await httpGet(url)).children_data
+  const url = "rest/V1/categories";
+  let categories = await httpGet(url);
 
-  categories = await recursiveExtractChildrenData(categories);
+  categories = await recursiveExtractChildrenData(categories.children_data);
+
 
   if (categories) {
     await Category.deleteMany();
@@ -49,6 +50,7 @@ const recursiveExtractChildrenData = async (children) => {
         is_active: child.is_active,
         isParent: child.parent_id === 2 ? true : false,
         image,
+        gallery_image: child.parent_id ? getGalleryImage(child.id) : null,
         isAgeRestricted: false
       });
     }
@@ -67,4 +69,24 @@ export const getCategories = async () => {
 
 export const getCategoryForId = async (categoryId) => {
   return await Category.findOne({ id: categoryId });
+}
+
+const getGalleryImage = (categoryId) => {
+  const map = {
+    3:    '/assets/images/fruits.png',
+    5:    '/assets/images/carnes.png',
+    4:    '/assets/images/granos.png',
+  993:    '/assets/images/panes.png',
+    9:    '/assets/images/charcuteria.png',
+   18:    '/assets/images/licores.png',
+    16:   '/assets/images/house.png',
+    6:    '/assets/images/helado.png',
+    10:   '/assets/images/snacks.png',
+    7:    '/assets/images/jabon.png',
+    19:   '/assets/images/juguetes.png',
+    11:   '/assets/images/mascotas.png',
+    20:   '/assets/images/automotriz.png',
+    21:   '/assets/images/bio-saludable.png'
+  }
+  return map[categoryId] ?? null;
 }

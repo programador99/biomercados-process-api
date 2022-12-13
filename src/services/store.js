@@ -2,6 +2,28 @@ import { httpGet } from './axios';
 import Store from '../models/store';
 import FrequentQuestions from '../models/frequentQuestion';
 
+const getStoreInfo = (storeId) => {
+  switch (storeId) {
+    case 2:
+      return {
+        name: 'Gran Valencia',
+        address: 'Calle callejon manongo, terreno civico c-20'
+      };
+      break;
+    case 5:
+      return {
+        name: 'Paraparal',
+        address: 'Calle callejon manongo, terreno civico c-20'
+      };
+      break;
+    case 7:
+      return {
+        name: 'Cabudare',
+        address: 'Calle callejon manongo, terreno civico c-20'
+      };
+      break;
+  }
+};
 
 export const constructStore = async () => {
   await Store.deleteMany();
@@ -17,17 +39,22 @@ export const constructStore = async () => {
         storeViews: [
           {
             id: store.id,
-            codde: store.code
+            codde: store.code,
           }
-        ]
+        ],
+        ...getStoreInfo(store.id),
       }
       stores.push(formatStore);
     } else {
       const storeView = {
         id: store.id,
-        codde: store.code
+        codde: store.code,
       }
-      stores[indexStoreInStores].storeViews.push(storeView)
+      stores[indexStoreInStores].storeViews.push(storeView);
+      stores[indexStoreInStores] = {
+        ...stores[indexStoreInStores],
+        ...getStoreInfo(store.id)
+      }
     }
   }
   stores = await Store.insertMany(stores);
@@ -42,14 +69,14 @@ export const getStores = async () => {
 }
 
 export const setFrequentQuestions = async (frequentQuestion) => {
-  if(frequentQuestion) {
+  if (frequentQuestion) {
     const frequentQuestions = await FrequentQuestions.create(frequentQuestion);
     return frequentQuestions;
   }
 };
 
 export const getStoreByViewId = async (viewId) => {
-  if(viewId && viewId > 0) {
+  if (viewId && viewId > 0) {
     const store = await Store.find({ storeView: { $elementMatch: { id: viewId } } }, { __v: 0, _id: 0 });
     return store[0].store_id;
   }

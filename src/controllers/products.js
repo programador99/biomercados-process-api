@@ -41,14 +41,11 @@ router.get("/category", async (req, res) => {
   try {
     registerLogInfo('construyendo categorias');
     let categories = await constructCategories().catch(e => {
-      if (e.response.status && e.response.data.message) {
-        throw { code: e.response.status, message: e.response.data.message };
-      } else {
-        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-      }
+      throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
     });
     res.status(200).json(categories);
   } catch (error) {
+    console.info(error)
     if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
