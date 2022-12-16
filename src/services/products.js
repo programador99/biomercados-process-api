@@ -7,7 +7,7 @@ import axios from 'axios';
 import { getStoreByViewId } from "./store";
 import product from "../models/product";
 
-const baseUrl = process.env.MEDIA_URL_MAGENTO || 'https://beta.biomercados.com.ve/media/'
+const baseUrl = process.env.MEDIA_URL_MAGENTO || 'https://biomercados.com.ve/media/'
 const prefixImagePath = "catalog/product/cache/f7518a5bb674ebdb0160bf37e33f351f";
 
 const urlIntegrator = process.env.URL_INTEGRATOR

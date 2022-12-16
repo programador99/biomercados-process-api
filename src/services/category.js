@@ -41,7 +41,7 @@ const recursiveExtractChildrenData = async (children) => {
         baseUrl +
         category.custom_attributes.filter(
           (atribute) => atribute.attribute_code == "image"
-        )[0]?.value.slice(1).replace('.jpeg' || '.png', '.webp') : '';
+        )[0]?.value.replace(/\/media\//, '')/*.slice(1).replace('jpeg' || 'png','webp')*/ : '';
 
       temp.push({
         id: child.id,
