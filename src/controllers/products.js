@@ -95,7 +95,7 @@ router.post('/update', async (req, res) => {
       }
     });
 
-    console.info(update)
+    registerLogInfo(`Productos actualizados: ${update?.length}`);
     res.status(200).json(response);
   } catch (error) {
     if (error.code && error.message) {
