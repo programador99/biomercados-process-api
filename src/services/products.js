@@ -351,7 +351,7 @@ export const getProductforCategory = async (categoryId, storeViewId) => {
   let products = await Product.find(categoryFilter, { __v: 0 });
 
   products = products.map(product => {
-    let countParentInProductCategory = product.categories.filter(category => category.isParent === true);
+    let countParentInProductCategory = product.categories.filter(category => category?.isParent === true);
 
     // Solo debe existe una categoria padre asociada al producto
     if (countParentInProductCategory && countParentInProductCategory.length === 1) {
