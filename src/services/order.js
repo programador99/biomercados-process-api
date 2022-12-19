@@ -102,14 +102,14 @@ export const constructBestSellingProductsPerWeek = async () => {
   }
 
   await ProductMoreSeller.deleteMany();
-    const storesViewsId = (await getStores()).map(store => store.storeViews[0].id);
+  const storesViewsId = (await getStores()).map(store => store.storeViews[0].id);
 
-    // fill listOrders empty for store
-    for (const store of storesViewsId) {
-      if(!listOrdersForStore[store]) {
-        listOrdersForStore[store] = [];
-      }
+  // fill listOrders empty for store
+  for (const store of storesViewsId) {
+    if (!listOrdersForStore[store]) {
+      listOrdersForStore[store] = [];
     }
+  }
 
   for (const ordersInStore in listOrdersForStore) {
     orders = listOrdersForStore[ordersInStore]
@@ -170,17 +170,6 @@ export const constructBestSellingProductsPerWeek = async () => {
       categoriesList[i].products = orderProducts.slice(0, 9).map(product => product._id);
     }
 
-    const productsBioInsuperables = await getProductsBioInsuperables();
-
-    // for (const storeViewsId of storesViewsId) {
-    let productsBioInsuperableInStore = [];
-    productsBioInsuperables.forEach(product => {
-      const storeProduct = product.stores.find(store => store.id == ordersInStore && store.bioinsuperable == true);
-      if (storeProduct) {
-        productsBioInsuperableInStore.push(product._id);
-      }
-    });
-
     // Validamos si quedaron categorias pendientes por mostrar
     console.info("Tiendas:", ordersInStore);
     for (const category of categoriesList) {
@@ -194,6 +183,16 @@ export const constructBestSellingProductsPerWeek = async () => {
         categoriesList[indexCategoryPrincipal].products = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
       }
     }
+
+    const productsBioInsuperables = await getProductsBioInsuperables();
+    // for (const storeViewsId of storesViewsId) {
+    let productsBioInsuperableInStore = [];
+    productsBioInsuperables.forEach(product => {
+      const storeProduct = product.stores.find(store => store.id == ordersInStore && store.bioinsuperable == true);
+      if (storeProduct) {
+        productsBioInsuperableInStore.push(product._id);
+      }
+    });
 
     const categoryBioinsuperable = {
       id: -1,
