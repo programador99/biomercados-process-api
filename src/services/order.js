@@ -189,7 +189,7 @@ export const constructBestSellingProductsPerWeek = async () => {
       let residualCountProducts = Math.abs(countProducts - limitCount);
 
       if (residualCountProducts > 0) {
-        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts);//.map(product => product._id);
+        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts).filter(product => product._id);
         const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
         categoriesList[indexCategoryPrincipal].products = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
       }
