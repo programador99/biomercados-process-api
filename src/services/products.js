@@ -305,7 +305,7 @@ export const constructProductsForSku = async (listSku) => {
 }
 
 export const getProductsBioInsuperables = async () => {
-  return await Product.find({ stores: { $all: [{ "$elemMatch": { bioinsuperable: true, stock: { $gt: 0 } } }, {}] } });
+  return await Product.find({ stores: { $all: [{ $elemMatch: { bioinsuperable: true, stock: { $gt: 0 } } }] } });
 }
 
 export const synchronizeProducts = async () => {
