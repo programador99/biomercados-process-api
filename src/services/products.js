@@ -143,7 +143,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
         (attribute) => attribute.attribute_code == "patrocinado"
       )[0]?.value
     ));
-
+    
     const bioinsuperable = getBooleanValue(parseInt(
       product.custom_attributes.filter(
         (attribute) => attribute.attribute_code == "bioinsuperable"
@@ -153,9 +153,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
     let brand = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "marca"
     )[0]?.value;
-
     let options = customAttributesMap.filter(item => item.attribute_code === "marca")[0]?.options;
-
     if (options) {
       brand = options.filter(option => option.value == brand)[0];
     } else {
@@ -165,25 +163,30 @@ const addCustomAtributes = (product, customAttributesMap) => {
     let origin = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "origen"
     )[0]?.value;
-
     options = customAttributesMap.filter(item => item.attribute_code === "origen")[0]?.options;
-
     if (options) {
       origin = options.filter(option => option.value == origin)[0];
     } else {
-      brand = null;
+      origin = null;
     }
 
     let packing = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "empaque"
     )[0]?.value;
-
     options = customAttributesMap.filter(item => item.attribute_code === "empaque")[0]?.options;
-
     if (options) {
       packing = options.filter(option => option.value == packing)[0];
     } else {
-      brand = null;
+      packing = null;
+    }
+
+    // Impuesto del producto
+    let tax = product.custom_attributes.filter((attribute) => attribute.attribute_code === "tax_class_id")[0]?.value;
+    options = customAttributesMap.filter(item => item.attribute_code === "tax_class_id")[0]?.options;
+    if(options) {
+      tax = getTaxValue(options.filter(option => option.value == tax)[0]?.label);
+    } else {
+      tax = null;
     }
 
     // Evalua un valor y devuelve un <Boolean>
@@ -212,9 +215,19 @@ const addCustomAtributes = (product, customAttributesMap) => {
 
     //comentar para ver los demas custom attributes
     delete product.custom_attributes
-    return { sponsored, bioinsuperable, brand, origin, packing, isAgeRestricted }
+    return { sponsored, bioinsuperable, brand, origin, packing, isAgeRestricted, tax }
   }
 }
+
+const getTaxValue = (code) => {
+  const tax_class_id = {
+    "EXCENTO": 0,
+    "IVA 8%": 0.8,
+    "IVA 16%": 0.16
+  }
+
+  return tax_class_id[code] ?? 0;
+};
 
 const getBooleanValue = (value) => {
   return value === 1;
@@ -252,7 +265,7 @@ const addImageInProduct = (product) => {
 
 const constructCustomAtributes = async () => {
   const url =
-    "rest/V1/products/attributes?searchCriteria[filterGroups][0][filters][0][field]=attribute_code&searchCriteria[filterGroups][0][filters][0][value]=marca,empaque,origen&fields=items[attribute_code,options]&searchCriteria[filterGroups][0][filters][0][condition_type]=in"
+    "rest/V1/products/attributes?searchCriteria[filterGroups][0][filters][0][field]=attribute_code&searchCriteria[filterGroups][0][filters][0][value]=marca,empaque,origen,tax_class_id&fields=items[attribute_code,options]&searchCriteria[filterGroups][0][filters][0][condition_type]=in"
   return (await httpGet(url)).items;
 }
 
@@ -298,7 +311,7 @@ export const constructProductsForSku = async (listSku) => {
     const storesCode = await getSitesStore();
     const customAttributesMap = await constructCustomAtributes();
     const products = await formatProducts(storesCode, productsOfMagento, customAttributesMap);
-    await Products.insertMany(products);
+    await Product.insertMany(products);
     await synchronizeProductsForSku(listForCreated)
   }
 
@@ -333,8 +346,8 @@ export const getProductforSku = async (sku) => {
 }
 
 export const getProductforCategory = async (categoryId, storeViewId) => {
-  const storeId = await getStoreByViewId(storeViewId);
-  const categoryFilter = { categories: { $elemMatch: { id: categoryId } }, stores: { $elemMatch: { id: storeId }, $elemMatch: { stock: { $gt: 0 } } } };
+  // const storeId = await getStoreByViewId(storeViewId);
+  const categoryFilter = { stores: { $elemMatch: { id: storeViewId, stock: { $gt: 0 }, price: { $gt: 0 } } }, categories: { $elemMatch: { id: categoryId } } };
 
   // Si la categoria es licores, solo ubicara productos 
   // que esten solo para esa categoria
