@@ -1,11 +1,8 @@
 import { httpGet } from "./axios"
 import Product from "../models/product"
-import ProductMoreSeller from '../models/productsMoreSeller.js'
 import TemporalProduct from "../models/temporalProducts"
 import { getCategoryForId } from "./category";
 import axios from 'axios';
-import { getStoreByViewId } from "./store";
-import product from "../models/product";
 
 const baseUrl = process.env.MEDIA_URL_MAGENTO || 'https://biomercados.com.ve/media/'
 const prefixImagePath = "catalog/product/cache/f7518a5bb674ebdb0160bf37e33f351f";
@@ -196,6 +193,10 @@ const addCustomAtributes = (product, customAttributesMap) => {
       )[0]?.value
     ));
 
+    let description = product.custom_attributes.filter(
+        (attribute) => attribute.attribute_code == "short_description"
+      )[0]?.value;
+
     // let sponsored = false;
     // let bioinsuperable = false;
 
@@ -215,7 +216,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
 
     //comentar para ver los demas custom attributes
     delete product.custom_attributes
-    return { sponsored, bioinsuperable, brand, origin, packing, isAgeRestricted, tax }
+    return { sponsored, bioinsuperable, brand, origin, packing, isAgeRestricted, tax, description }
   }
 }
 

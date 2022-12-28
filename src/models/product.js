@@ -16,5 +16,6 @@ const productSchema = new mongoose.Schema({
   packing: Object,
   tax: Number,
   isAgeRestricted: Boolean,
+  description: Object,
 });
 export default mongoose.model('Product', productSchema);
