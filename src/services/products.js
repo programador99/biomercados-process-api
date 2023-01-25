@@ -305,8 +305,8 @@ const addProductStores = (storesCode, product) => {
 };
 
 const addImageInProduct = (product) => {
-  let image =
-    "https://beta.biomercados.com.ve/media/catalog/product/placeholder/default/bio_placeholder.webp";
+  let image = process.env.PLACE_HOLDER; // Variable de entorno
+  //"https://beta.biomercados.com.ve/media/catalog/product/placeholder/default/bio_placeholder.webp";
 
   if (product.media_gallery_entries[0]) {
     image = baseUrl + prefixImagePath + product.media_gallery_entries[0].file; //.replace('.jpeg' || '.png', '.webp');
@@ -389,6 +389,9 @@ export const getProductsBioInsuperables = async () => {
     stores: {
       $all: [{ $elemMatch: { bioinsuperable: true, stock: { $gt: 0 } } }],
     },
+    image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
   });
 };
 
@@ -413,7 +416,11 @@ export const synchronizeProductsForSku = async (skuList) => {
 };
 
 export const getProductforSku = async (sku) => {
-  return await Product.findOne({ sku }, { __v: 0 });
+  return await Product.findOne({
+    sku, image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
+  }, { __v: 0 });
 };
 
 export const getProductforCategory = async (categoryId, storeViewId) => {
@@ -424,7 +431,7 @@ export const getProductforCategory = async (categoryId, storeViewId) => {
     },
     categories: { $elemMatch: { id: categoryId } },
     image: {
-      $ne: "https://beta.biomercados.com.ve/media/catalog/product/placeholder/default/bio_placeholder.webp",
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
     },
   };
 
