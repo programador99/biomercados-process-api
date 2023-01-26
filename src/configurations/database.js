@@ -27,4 +27,4 @@ mongoose.connect(URI, {
 .then(() => console.log('Successfully connected!'))
 .catch(err => console.log(err))
 
-module.exports = mongoose;
+export default mongoose;

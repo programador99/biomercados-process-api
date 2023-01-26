@@ -5,6 +5,9 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import 'dotenv/config'
 
+// Init DataBase Connection
+require('./configurations/database');
+
 import cors from './configurations/cors'
 import createRouter from "./controllers/index"
 import { runJobs } from './crons/crons';
