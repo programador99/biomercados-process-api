@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import 'dotenv/config'
 
-import mongoose from './configurations/database';
 import cors from './configurations/cors'
 import createRouter from "./controllers/index"
 import { runJobs } from './crons/crons';
@@ -38,7 +37,7 @@ app.use(logErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
-const server = app.listen(app.get('port'), () => {
+app.listen(app.get('port'), () => {
   console.log('server on port ' + app.get('port'))
 })
 

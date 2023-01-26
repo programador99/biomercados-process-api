@@ -4,10 +4,10 @@ import { constructBestSellingProductsPerWeek } from "../services/order";
 import { constructProducts, synchronizeProducts } from "../services/products";
 import { constructStore } from "../services/store";
 
-const runJobs = () => {
-  //trabajos ejecutados cada hora
-  /*cron.schedule("0 27 * * * *", async () => {
-    console.log("comenzo proceso el de cada hora");
+export const runJobs = () => {
+  // Trabajos ejecutados cada hora
+  cron.schedule("0 */1 * * *", async () => {
+    console.log("Comenzo proceso de cada hora");
     synchronizeProducts().catch((e) => {
       if (e.response.status && e.response.data.message) {
         throw {
@@ -22,13 +22,14 @@ const runJobs = () => {
         };
       }
     });
-    console.log("termino el de cada hora");
-  });*/
+    console.log("termino de cada hora");
+  });
 
-  //trabajos ejecutados cada dia
-  cron.schedule("0 0 0 * * *", async () => {
+  // Trabajos ejecutados cada dia
+  cron.schedule("0 0 * * *", async () => {
     console.log("comenzo proceso el proceso diario");
-   /* await constructProducts().catch((e) => {
+    // Construccion de categorias
+    await constructCategories().catch((e) => {
       if (e.response.status && e.response.data.message) {
         throw {
           code: e.response.status,
@@ -41,8 +42,10 @@ const runJobs = () => {
             "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente",
         };
       }
-    });*/
-    /*await constructCategories().catch((e) => {
+    });
+
+    // Construccion de productos, mas vendidos
+    await constructProducts().catch((e) => {
       if (e.response.status && e.response.data.message) {
         throw {
           code: e.response.status,
@@ -55,14 +58,16 @@ const runJobs = () => {
             "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente",
         };
       }
-    });*/
+    });
+
     console.log("termino el proceso diario")
   });
 
-  //trabajos ejecutados cada semana
-  cron.schedule("0 0 8 * * 0", async () => {
-    console.log("comenzo proceso el de cada semana");
-   /* await constructBestSellingProductsPerWeek().catch((e) => {
+  // Trabajos ejecutados el domingo de cada semana
+  cron.schedule("0 0 * * 7", async () => {
+    console.log("comenzo proceso de cada semana");
+    // Construccion de productos mas vendidos
+    await constructBestSellingProductsPerWeek().catch((e) => {
       if (e.response.status && e.response.data.message) {
         throw {
           code: e.response.status,
@@ -75,7 +80,9 @@ const runJobs = () => {
             "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente",
         };
       }
-    }); */
+    });
+
+    // Construccion de tiendas
     await constructStore().catch((e) => {
       if (e.response.status && e.response.data.message) {
         throw {
@@ -90,10 +97,6 @@ const runJobs = () => {
         };
       }
     });
-    console.log("termino el de cada semana");
+    console.log("termino de cada semana");
   });
-};
-
-module.exports = {
-  runJobs,
 };
