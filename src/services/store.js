@@ -2,28 +2,23 @@ import { httpGet } from './axios';
 import Store from '../models/store';
 import FrequentQuestions from '../models/frequentQuestion';
 
-const getStoreInfo = (storeId) => {
-  switch (storeId) {
-    case 2:
-      return {
-        name: 'Gran Valencia',
-        address: 'Calle callejon manongo, terreno civico c-20'
-      };
-      break;
-    case 5:
-      return {
-        name: 'Paraparal',
-        address: 'Calle callejon manongo, terreno civico c-20'
-      };
-      break;
-    case 7:
-      return {
-        name: 'Cabudare',
-        address: 'Calle callejon manongo, terreno civico c-20'
-      };
-      break;
+const storeLocalInfo = {
+  2: {
+    name: 'Gran Valencia',
+    phone: "+584122462263",
+    address: "Calle callejon manongo, terreno civico c-20"
+  },
+  5: {
+    name: 'Paraparal',
+    phone: "+584141429192",
+    address: "Avenida principal, calle Esperanza, a 100mtrs de la iglesia de los cerritos."
+  },
+  7: {
+    name: 'Cabudare',
+    phone: "+584244056282",
+    address: "Avenida El Placer con avenida Bolívar, local Nro S/N, sector La Mendera"
   }
-};
+}
 
 export const constructStore = async () => {
   await Store.deleteMany();
@@ -42,7 +37,7 @@ export const constructStore = async () => {
             codde: store.code,
           }
         ],
-        ...getStoreInfo(store.id),
+        ...storeLocalInfo[store.id]
       }
       stores.push(formatStore);
     } else {
@@ -53,7 +48,7 @@ export const constructStore = async () => {
       stores[indexStoreInStores].storeViews.push(storeView);
       stores[indexStoreInStores] = {
         ...stores[indexStoreInStores],
-        ...getStoreInfo(store.id)
+        ...storeLocalInfo[store.i]
       }
     }
   }
