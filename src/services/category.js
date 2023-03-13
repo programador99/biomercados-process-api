@@ -73,20 +73,20 @@ export const getCategoryForId = async (categoryId) => {
 
 const getGalleryImage = (categoryId) => {
   const map = {
-    3:    '/assets/images/fruits.png',
-    5:    '/assets/images/carnes.png',
-    4:    '/assets/images/granos.png',
-  993:    '/assets/images/panes.png',
-    9:    '/assets/images/charcuteria.png',
-   18:    '/assets/images/licores.png',
-    16:   '/assets/images/house.png',
-    6:    '/assets/images/helado.png',
-    10:   '/assets/images/snacks.png',
-    7:    '/assets/images/jabon.png',
-    19:   '/assets/images/juguetes.png',
-    11:   '/assets/images/mascotas.png',
-    20:   '/assets/images/automotriz.png',
-    21:   '/assets/images/bio-saludable.png'
+    3:    'https://media.biomercados.com.ve/frutas-y-hortalizas.webp',
+    5:    'https://media.biomercados.com.ve/carnes-aves-y-congelados.webp',
+    4:    'https://media.biomercados.com.ve/viveres.webp',
+  993:    'https://media.biomercados.com.ve/panes-y-tortas.webp',
+    9:    'https://media.biomercados.com.ve/charcuteria-y-lacteos.webp',
+   18:    'https://media.biomercados.com.ve/licores.webp',
+    16:   'https://media.biomercados.com.ve/hogar.webp',
+    6:    'https://media.biomercados.com.ve/listos-para-llevar.webp',
+    10:   'https://media.biomercados.com.ve/bebidas-y-snacks.webp',
+    7:    'https://media.biomercados.com.ve/cuidado-personal.webp',
+    19:   'https://media.biomercados.com.ve/juguetes.webp',
+    11:   'https://media.biomercados.com.ve/mascotas.webp',
+    20:   'https://media.biomercados.com.ve/media/movil/categorias/automotriz.webp',
+    21:   'https://media.biomercados.com.ve/bio-saludable.webp'
   }
   return map[categoryId] ?? null;
 }
