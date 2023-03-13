@@ -73,20 +73,20 @@ export const getCategoryForId = async (categoryId) => {
 
 const getGalleryImage = (categoryId) => {
   const map = {
-    3:    'https://media.biomercados.com.ve/frutas-y-hortalizas.webp',
-    5:    'https://media.biomercados.com.ve/carnes-aves-y-congelados.webp',
-    4:    'https://media.biomercados.com.ve/viveres.webp',
-  993:    'https://media.biomercados.com.ve/panes-y-tortas.webp',
-    9:    'https://media.biomercados.com.ve/charcuteria-y-lacteos.webp',
-   18:    'https://media.biomercados.com.ve/licores.webp',
-    16:   'https://media.biomercados.com.ve/hogar.webp',
-    6:    'https://media.biomercados.com.ve/listos-para-llevar.webp',
-    10:   'https://media.biomercados.com.ve/bebidas-y-snacks.webp',
-    7:    'https://media.biomercados.com.ve/cuidado-personal.webp',
-    19:   'https://media.biomercados.com.ve/juguetes.webp',
-    11:   'https://media.biomercados.com.ve/mascotas.webp',
+    3:    'https://media.biomercados.com.ve/media/movil/categorias/frutas-y-hortalizas.webp',
+    5:    'https://media.biomercados.com.ve/media/movil/categorias/carnes-aves-y-congelados.webp',
+    4:    'https://media.biomercados.com.ve/media/movil/categorias/viveres.webp',
+  993:    'https://media.biomercados.com.ve/media/movil/categorias/panes-y-tortas.webp',
+    9:    'https://media.biomercados.com.ve/media/movil/categorias/charcuteria-y-lacteos.webp',
+   18:    'https://media.biomercados.com.ve/media/movil/categorias/licores.webp',
+    16:   'https://media.biomercados.com.ve/media/movil/categorias/hogar.webp',
+    6:    'https://media.biomercados.com.ve/media/movil/categorias/listos-para-llevar.webp',
+    10:   'https://media.biomercados.com.ve/media/movil/categorias/bebidas-y-snacks.webp',
+    7:    'https://media.biomercados.com.ve/media/movil/categorias/cuidado-personal.webp',
+    19:   'https://media.biomercados.com.ve/media/movil/categorias/juguetes.webp',
+    11:   'https://media.biomercados.com.ve/media/movil/categorias/mascotas.webp',
     20:   'https://media.biomercados.com.ve/media/movil/categorias/automotriz.webp',
-    21:   'https://media.biomercados.com.ve/bio-saludable.webp'
+    21:   'https://media.biomercados.com.ve/media/movil/categorias/bio-saludable.webp'
   }
   return map[categoryId] ?? null;
 }
