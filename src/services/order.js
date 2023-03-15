@@ -151,7 +151,7 @@ export const constructBestSellingProductsPerWeek = async () => {
       if (categoryPrincipal) {
         const indexCategoryPrincipal = categoriesList.findIndex(category => category.id == categoryPrincipal.id);
         if (indexCategoryPrincipal !== -1) {
-          categoriesList[indexCategoryPrincipal].products.push(product);
+          categoriesList[indexCategoryPrincipal].products.push(product.sku);
         }
       }
     };
@@ -167,7 +167,7 @@ export const constructBestSellingProductsPerWeek = async () => {
         }
       });
 
-      categoriesList[i].products = orderProducts.slice(0, 9).map(product => product._id);
+      categoriesList[i].products = orderProducts.slice(0, 9).map(product => product);
     }
 
     // Validamos si quedaron categorias pendientes por mostrar
@@ -178,7 +178,7 @@ export const constructBestSellingProductsPerWeek = async () => {
       let residualCountProducts = Math.abs(countProducts - limitCount);
 
       if (residualCountProducts > 0) {
-        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts).filter(product => product._id);
+        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts).filter(product => product);
         const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
         categoriesList[indexCategoryPrincipal].products = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
       }
@@ -190,7 +190,7 @@ export const constructBestSellingProductsPerWeek = async () => {
     productsBioInsuperables.forEach(product => {
       const storeProduct = product.stores.find(store => store.id == ordersInStore && store.bioinsuperable == true);
       if (storeProduct) {
-        productsBioInsuperableInStore.push(product._id);
+        productsBioInsuperableInStore.push(product.sku);
       }
     });
 

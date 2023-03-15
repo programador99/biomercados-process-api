@@ -463,7 +463,7 @@ export const getProductforCategory = async (categoryId, storeViewId) => {
         countParentInProductCategory &&
         countParentInProductCategory.length === 1
       ) {
-        return product;
+        return product?.sku;
       } else {
         return null;
       }
