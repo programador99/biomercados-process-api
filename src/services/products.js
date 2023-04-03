@@ -268,7 +268,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
 const getTaxValue = (code) => {
   const tax_class_id = {
     EXCENTO: 0,
-    "IVA 8%": 0.8,
+    "IVA 8%": 0.08,
     "IVA 16%": 0.16,
   };
 
