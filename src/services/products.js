@@ -169,6 +169,14 @@ const addCustomAtributes = (product, customAttributesMap) => {
       )
     );
 
+    const oferta = getBooleanValue(
+      parseInt(
+        product.custom_attributes.filter(
+          (attribute) => attribute.attribute_code == "oferta"
+        )[0]?.value
+      )
+    );
+
     let brand = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "marca"
     )[0]?.value;
@@ -220,6 +228,18 @@ const addCustomAtributes = (product, customAttributesMap) => {
       tax = null;
     }
 
+    // expirationPush -> Posicionamiento de productos por fecha de vencimiento
+    let expirationpush = product.custom_attributes.filter(
+      (attribute) => attribute.attribute_code === "expirationpush"
+    )[0]?.value;
+
+    // const date = new Date(expirationpush);
+    // const current = new Date();
+    // const difference = date.getTime() - current.getTime();
+    // const totalDays = Math.ceil(difference / (1000 * 3600 * 24));
+    // expirationpush = totalDays;
+
+
     // Evalua un valor y devuelve un <Boolean>
     let isAgeRestricted = getBooleanValue(
       parseInt(
@@ -255,12 +275,14 @@ const addCustomAtributes = (product, customAttributesMap) => {
     return {
       sponsored,
       bioinsuperable,
+      oferta,
       brand,
       origin,
       packing,
       isAgeRestricted,
       tax,
       description,
+      expirationpush
     };
   }
 };
@@ -289,7 +311,8 @@ const addProductStores = (storesCode, product) => {
         )[0];
         store.stock = 0;
         store.price = product.price;
-        store.bioinsuperable = product.bioinsuperable;
+        store.bioinsuperable = product.bioinsuperable ?? false;
+        store.oferta = product.oferta ?? false;
         stores.push(store);
       }
 
@@ -301,6 +324,7 @@ const addProductStores = (storesCode, product) => {
       e.response?.status
     );
   }
+  
   return stores;
 };
 
@@ -450,7 +474,9 @@ export const getProductforCategory = async (categoryId, storeViewId) => {
   //   };
   // }
 
-  let products = await Product.find(categoryFilter, { __v: 0 });
+  let products = await Product.find(categoryFilter, { __v: 0 }).sort({
+    expirationpush: 'desc'
+  });
 
   products = products
     .map((product) => {

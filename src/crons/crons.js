@@ -9,9 +9,9 @@ export const runJobs = () => {
   cron.schedule("0 */1 * * *", async () => {
     console.log("Comenzo proceso de cada hora");
     synchronizeProducts().catch((e) => {
-      if (e.response.status && e.response.data.message) {
+      if (e.response?.status && e.response.data.message) {
         throw {
-          code: e.response.status,
+          code: e.response?.status,
           message: e.response.data.message,
         };
       } else {
@@ -30,9 +30,9 @@ export const runJobs = () => {
     console.log("comenzo proceso el proceso diario");
     // Construccion de categorias
     await constructCategories().catch((e) => {
-      if (e.response.status && e.response.data.message) {
+      if (e.response?.status && e.response.data.message) {
         throw {
-          code: e.response.status,
+          code: e.response?.status,
           message: e.response.data.message,
         };
       } else {
@@ -46,9 +46,9 @@ export const runJobs = () => {
 
     // Construccion de productos, mas vendidos
     await constructProducts().catch((e) => {
-      if (e.response.status && e.response.data.message) {
+      if (e.response?.status && e.response.data.message) {
         throw {
-          code: e.response.status,
+          code: e.response?.status,
           message: e.response.data.message,
         };
       } else {
@@ -68,9 +68,9 @@ export const runJobs = () => {
     console.log("comenzo proceso de cada semana");
     // Construccion de productos mas vendidos
     await constructBestSellingProductsPerWeek().catch((e) => {
-      if (e.response.status && e.response.data.message) {
+      if (e.response?.status && e.response.data.message) {
         throw {
-          code: e.response.status,
+          code: e.response?.status,
           message: e.response.data.message,
         };
       } else {
@@ -84,9 +84,9 @@ export const runJobs = () => {
 
     // Construccion de tiendas
     await constructStore().catch((e) => {
-      if (e.response.status && e.response.data.message) {
+      if (e.response?.status && e.response.data.message) {
         throw {
-          code: e.response.status,
+          code: e.response?.status,
           message: e.response.data.message,
         };
       } else {
