@@ -17,6 +17,11 @@ const storeLocalInfo = {
     name: 'Cabudare',
     phone: "+584244056282",
     address: "Avenida El Placer con avenida Bolívar, local Nro S/N, sector La Mendera"
+  },
+  10: {
+    name: 'San Diego',
+    phone: "+584122462263",
+    address: "Calle callejon manongo, terreno civico c-20"
   }
 }
 
@@ -26,6 +31,7 @@ export const constructStore = async () => {
   const listStores = await httpGet(url);
   let stores = [];
   for (const store of listStores) {
+    console.info(store);
     const storeInStores = stores.filter(storeInList => storeInList.store_id === store.website_id)[0];
     const indexStoreInStores = stores.indexOf(storeInStores);
     if (indexStoreInStores == -1) {

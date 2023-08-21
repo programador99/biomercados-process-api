@@ -97,19 +97,16 @@ const getProductsForSku = async (listSku) => {
 const getSitesStore = async () => {
   const url = "rest/V1/store/storeConfigs";
   const sites = await httpGet(url);
-  let coincidences = [];
-  let sitesReturn = [];
-  sites.forEach((site) => {
-    const coincidenceId = coincidences.filter(
-      (coincidence) => coincidence === site.website_id
-    )[0];
+  // const coincidences = [];
+  const sitesReturn = [];
+  sites.forEach(site => {
+    const coincidenceId = sitesReturn.find(coincidence => coincidence?.id === site.website_id);
     if (!coincidenceId) {
-      coincidences.push(site.website_id);
-      const website = {
+      // coincidences.push(site.website_id);
+      sitesReturn.push({
         id: site.website_id,
         code: site.code,
-      };
-      sitesReturn.push(website);
+      });
     }
   });
   return sitesReturn;
@@ -306,14 +303,15 @@ const addProductStores = (storesCode, product) => {
   try {
     if (product.extension_attributes) {
       for (const webSiteId of product.extension_attributes.website_ids) {
-        let store = storesCode.filter(
-          (storeCode) => storeCode.id == webSiteId
-        )[0];
-        store.stock = 0;
-        store.price = product.price;
-        store.bioinsuperable = product.bioinsuperable ?? false;
-        store.oferta = product.oferta ?? false;
-        stores.push(store);
+        let store = storesCode.find(storeCode => storeCode.id == webSiteId);
+
+        if (store) {
+          store.stock = 0;
+          store.price = product.price;
+          store.bioinsuperable = product.bioinsuperable ?? false;
+          store.oferta = product.oferta ?? false;
+          stores.push(store);
+        }
       }
 
       delete product.extension_attributes.website_ids;
@@ -324,7 +322,7 @@ const addProductStores = (storesCode, product) => {
       e.response?.status
     );
   }
-  
+
   return stores;
 };
 
@@ -417,6 +415,25 @@ export const getProductsBioInsuperables = async () => {
       $ne: process.env.PLACE_HOLDER, // Variable de entorno
     }
   });
+};
+
+export const getProductsOfertas = async () => {
+  return await Product.find({
+    stores: {
+      $all: [{ $elemMatch: { oferta: true, stock: { $gt: 0 } } }],
+    },
+    image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
+  });
+};
+
+export const getNewProducts = async () => {
+  return (await Product.find({
+    image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
+  })).reverse();
 };
 
 export const synchronizeProducts = async () => {
