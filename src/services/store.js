@@ -21,7 +21,7 @@ const storeLocalInfo = {
   9: {
     name: 'San Diego',
     phone: "+584122462263",
-    address: "Tulipanes – Pueblo de San Diego – Zona Industrial (si se mantiene como está, no incluye La Cumaca)"
+    address: "Tulipanes – Pueblo de San Diego – Zona Industrial"
   }
 }
 
