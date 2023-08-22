@@ -177,19 +177,21 @@ export const constructBestSellingProductsPerWeek = async () => {
         let limitCount = 10;
         let countProducts = category?.products.length;
         let residualCountProducts = Math.abs(countProducts - limitCount);
+        ordersInStore == 9 && console.info(limitCount, category?.id, countProducts, residualCountProducts);
 
         if (residualCountProducts > 0) {
           const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
+          let cProducts = categoriesList[indexCategoryPrincipal].products;
           const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).map(product => {
-            let cProducts = categoriesList[indexCategoryPrincipal].products;
             if (!cProducts.includes(product)) {
               return product;
             }
           }).filter(product => product).slice(0, residualCountProducts);
 
           let categoryProducts = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
+          ordersInStore == 9 && console.info(categoryProductsIds);
           categoriesList[indexCategoryPrincipal].products = categoryProducts; //Array.from(new Set(categoryProducts));
-          console.info(categoriesList[indexCategoryPrincipal], "lista de categorias");
+          // console.info(categoriesList[indexCategoryPrincipal], "lista de categorias");
         }
       } catch (error) {
         console.error(error);
