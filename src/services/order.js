@@ -1,7 +1,7 @@
 import { httpGet } from "./axios";
 import Order from '../models/order'
 import ProductMoreSeller from '../models/productsMoreSeller.js'
-import { getProductforCategory, getProductforSku, getProductsBioInsuperables } from "./products";
+import { getNewProducts, getProductforCategory, getProductforSku, getProductsBioInsuperables, getProductsOfertas } from "./products";
 import { getCategoriesPrincipal } from "./category";
 import { getStores } from "./store";
 
@@ -173,18 +173,36 @@ export const constructBestSellingProductsPerWeek = async () => {
     // Validamos si quedaron categorias pendientes por mostrar
     console.info("Tiendas:", ordersInStore);
     for (const category of categoriesList) {
-      let limitCount = 10;
-      let countProducts = category?.products.length;
-      let residualCountProducts = Math.abs(countProducts - limitCount);
+      try {
+        let limitCount = 10;
+        let countProducts = category?.products.length;
+        let residualCountProducts = Math.abs(countProducts - limitCount);
+        ordersInStore == 9 && console.info(limitCount, category?.id, countProducts, residualCountProducts);
 
-      if (residualCountProducts > 0) {
-        const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).slice(0, residualCountProducts).filter(product => product);
-        const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
-        categoriesList[indexCategoryPrincipal].products = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
+        if (residualCountProducts > 0) {
+          const indexCategoryPrincipal = categoriesList.findIndex(cat => cat.id === category.id);
+          let cProducts = categoriesList[indexCategoryPrincipal].products;
+          const categoryProductsIds = (await getProductforCategory(category.id, ordersInStore)).map(product => {
+            if (!cProducts.includes(product)) {
+              return product;
+            }
+          }).filter(product => product).slice(0, residualCountProducts);
+
+          let categoryProducts = [...categoriesList[indexCategoryPrincipal].products, ...categoryProductsIds];
+          ordersInStore == 9 && console.info(categoryProductsIds);
+          categoriesList[indexCategoryPrincipal].products = categoryProducts; //Array.from(new Set(categoryProducts));
+          // console.info(categoriesList[indexCategoryPrincipal], "lista de categorias");
+        }
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
     }
 
     const productsBioInsuperables = await getProductsBioInsuperables();
+    const productsOfertas = await getProductsOfertas();
+    const productsNews = await getNewProducts();
+
     // for (const storeViewsId of storesViewsId) {
     let productsBioInsuperableInStore = [];
     productsBioInsuperables.forEach(product => {
@@ -194,15 +212,54 @@ export const constructBestSellingProductsPerWeek = async () => {
       }
     });
 
+    let productsOfertaInStore = [];
+    productsOfertas.forEach(product => {
+      const storeProduct = product.stores.find(store => store.id == ordersInStore && store.oferta == true);
+      if (storeProduct) {
+        productsOfertaInStore.push(product.sku);
+      }
+    });
+
+    let productsNewsInStore = [];
+    productsNews.forEach(product => {
+      const storeProduct = product.stores.find(store => store.id == ordersInStore);
+      if (storeProduct) {
+        productsNewsInStore.push(product.sku);
+      }
+    });
+
+
     const categoryBioinsuperable = {
       id: -1,
       name: "Bioinsuperable",
       storeId: ordersInStore,
+      category_route: "/store/search?search=bioinsuperable",
+      brand: getCategoryBrandMoreSeller('-1'),
       products: productsBioInsuperableInStore.slice(0, 10),
     };
 
+    // Productos de oferta
+    const categoryOferta = {
+      id: -2,
+      name: "Ofertas",
+      storeId: ordersInStore,
+      category_route: "/store/search?search=oferta",
+      brand: getCategoryBrandMoreSeller('-2'),
+      products: productsOfertaInStore.slice(0, 10),
+    };
+
+    // Productos de oferta
+    const categoryNews = {
+      id: -3,
+      name: "Nuevos",
+      storeId: ordersInStore,
+      category_route: "/store/search?search=nuevos",
+      brand: null,
+      products: productsNewsInStore.slice(0, 10),
+    };
+
     if (categoriesList.some(item => item.id == -1 && item.storeId == ordersInStore) == false)
-      categoriesList.push(categoryBioinsuperable);
+      categoriesList.push(categoryBioinsuperable, /*categoryOferta, categoryNews*/);
     // }
 
     // let categoryIds = categoriesList.map(item => item.id);
@@ -217,7 +274,17 @@ export const constructBestSellingProductsPerWeek = async () => {
   return await ProductMoreSeller.find();
 }
 
-
+const getCategoryBrandMoreSeller = (catId) => {
+  switch (catId) {
+    case '-1':
+      return 'bioinsuperables';
+    case '-2':
+      return 'ofertas';
+    case '-3':
+    default:
+      return null;
+  }
+};
 
 const formatCategory = (categories, ordersInStore) => {
   let categoriesFormat = categories.map(category => {
@@ -225,6 +292,7 @@ const formatCategory = (categories, ordersInStore) => {
       id: category.id,
       name: category.name,
       storeId: ordersInStore,
+      brand: getCategoryBrandMoreSeller(category.id),
       products: []
     }
     return format;

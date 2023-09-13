@@ -97,19 +97,16 @@ const getProductsForSku = async (listSku) => {
 const getSitesStore = async () => {
   const url = "rest/V1/store/storeConfigs";
   const sites = await httpGet(url);
-  let coincidences = [];
-  let sitesReturn = [];
-  sites.forEach((site) => {
-    const coincidenceId = coincidences.filter(
-      (coincidence) => coincidence === site.website_id
-    )[0];
+  // const coincidences = [];
+  const sitesReturn = [];
+  sites.forEach(site => {
+    const coincidenceId = sitesReturn.find(coincidence => coincidence?.id === site.website_id);
     if (!coincidenceId) {
-      coincidences.push(site.website_id);
-      const website = {
+      // coincidences.push(site.website_id);
+      sitesReturn.push({
         id: site.website_id,
         code: site.code,
-      };
-      sitesReturn.push(website);
+      });
     }
   });
   return sitesReturn;
@@ -169,6 +166,14 @@ const addCustomAtributes = (product, customAttributesMap) => {
       )
     );
 
+    const oferta = getBooleanValue(
+      parseInt(
+        product.custom_attributes.filter(
+          (attribute) => attribute.attribute_code == "oferta"
+        )[0]?.value
+      )
+    );
+
     let brand = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "marca"
     )[0]?.value;
@@ -220,6 +225,18 @@ const addCustomAtributes = (product, customAttributesMap) => {
       tax = null;
     }
 
+    // expirationPush -> Posicionamiento de productos por fecha de vencimiento
+    let expirationpush = product.custom_attributes.filter(
+      (attribute) => attribute.attribute_code === "expirationpush"
+    )[0]?.value;
+
+    // const date = new Date(expirationpush);
+    // const current = new Date();
+    // const difference = date.getTime() - current.getTime();
+    // const totalDays = Math.ceil(difference / (1000 * 3600 * 24));
+    // expirationpush = totalDays;
+
+
     // Evalua un valor y devuelve un <Boolean>
     let isAgeRestricted = getBooleanValue(
       parseInt(
@@ -255,12 +272,14 @@ const addCustomAtributes = (product, customAttributesMap) => {
     return {
       sponsored,
       bioinsuperable,
+      oferta,
       brand,
       origin,
       packing,
       isAgeRestricted,
       tax,
       description,
+      expirationpush
     };
   }
 };
@@ -268,7 +287,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
 const getTaxValue = (code) => {
   const tax_class_id = {
     EXCENTO: 0,
-    "IVA 8%": 0.8,
+    "IVA 8%": 0.08,
     "IVA 16%": 0.16,
   };
 
@@ -284,13 +303,15 @@ const addProductStores = (storesCode, product) => {
   try {
     if (product.extension_attributes) {
       for (const webSiteId of product.extension_attributes.website_ids) {
-        let store = storesCode.filter(
-          (storeCode) => storeCode.id == webSiteId
-        )[0];
-        store.stock = 0;
-        store.price = product.price;
-        store.bioinsuperable = product.bioinsuperable;
-        stores.push(store);
+        let store = storesCode.find(storeCode => storeCode.id == webSiteId);
+
+        if (store) {
+          store.stock = 0;
+          store.price = product.price;
+          store.bioinsuperable = product.bioinsuperable ?? false;
+          store.oferta = product.oferta ?? false;
+          stores.push(store);
+        }
       }
 
       delete product.extension_attributes.website_ids;
@@ -301,6 +322,7 @@ const addProductStores = (storesCode, product) => {
       e.response?.status
     );
   }
+
   return stores;
 };
 
@@ -395,6 +417,25 @@ export const getProductsBioInsuperables = async () => {
   });
 };
 
+export const getProductsOfertas = async () => {
+  return await Product.find({
+    stores: {
+      $all: [{ $elemMatch: { oferta: true, stock: { $gt: 0 } } }],
+    },
+    image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
+  });
+};
+
+export const getNewProducts = async () => {
+  return (await Product.find({
+    image: {
+      $ne: process.env.PLACE_HOLDER, // Variable de entorno
+    }
+  })).reverse();
+};
+
 export const synchronizeProducts = async () => {
   const url = urlIntegrator;
   const payload = {
@@ -450,7 +491,9 @@ export const getProductforCategory = async (categoryId, storeViewId) => {
   //   };
   // }
 
-  let products = await Product.find(categoryFilter, { __v: 0 });
+  let products = await Product.find(categoryFilter, { __v: 0 }).sort({
+    expirationpush: 'desc'
+  });
 
   products = products
     .map((product) => {

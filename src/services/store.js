@@ -4,28 +4,33 @@ import FrequentQuestions from '../models/frequentQuestion';
 
 const storeLocalInfo = {
   2: {
-    name: 'Gran Valencia',
+    name: 'Mañongo',
     phone: "+584122462263",
-    address: "Calle callejon manongo, terreno civico c-20"
+    address: "Naguanagua – Valencia norte – Valencia centro (Urb. Michelena, Urb. San Blas)"
   },
   5: {
     name: 'Paraparal',
     phone: "+584141429192",
-    address: "Avenida principal, calle Esperanza, a 100mtrs de la iglesia de los cerritos."
+    address: "Paraparal – Los Guayos – Ciudad Alianza – Guacara – Valencia sur (La Isabelica)"
   },
   7: {
     name: 'Cabudare',
     phone: "+584244056282",
-    address: "Avenida El Placer con avenida Bolívar, local Nro S/N, sector La Mendera"
+    address: "Cabudare Este y Oeste – Poblado de Agua Viva – Barquisimerto Este"
+  },
+  9: {
+    name: 'San Diego',
+    phone: "+584122462263",
+    address: "Tulipanes – Pueblo de San Diego – Zona Industrial"
   }
 }
 
 export const constructStore = async () => {
-  await Store.deleteMany();
   const url = 'rest/V1/store/storeConfigs';
   const listStores = await httpGet(url);
   let stores = [];
   for (const store of listStores) {
+    console.info(store);
     const storeInStores = stores.filter(storeInList => storeInList.store_id === store.website_id)[0];
     const indexStoreInStores = stores.indexOf(storeInStores);
     if (indexStoreInStores == -1) {
@@ -52,6 +57,9 @@ export const constructStore = async () => {
       }
     }
   }
+  // Truncar tiendas previo a insercion
+  await Store.deleteMany();
+  // Setear nuevas tiendas
   stores = await Store.insertMany(stores);
   return stores;
 }
