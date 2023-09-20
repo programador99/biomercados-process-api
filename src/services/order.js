@@ -277,9 +277,9 @@ export const constructBestSellingProductsPerWeek = async () => {
 const getCategoryBrandMoreSeller = (catId) => {
   switch (catId) {
     case '-1':
-      return 'bioinsuperables';
+      return 'BIOINSUPERABLES';
     case '-2':
-      return 'ofertas';
+      return 'OFERTAS';
     case '-3':
     default:
       return null;
