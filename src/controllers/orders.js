@@ -8,6 +8,7 @@ router.get('/constructProductsBestSelling', async (req, res) => {
   try {
     registerLogInfo('construyendo los productos mas vendidos');
     const orders = await constructBestSellingProductsPerWeek().catch(e => {
+      console.error(e);
       if (e.response.status && e.response.data.message) {
         throw { code: e.response.status, message: e.response.data.message };
       } else {
@@ -17,6 +18,7 @@ router.get('/constructProductsBestSelling', async (req, res) => {
     res.status(200).json(orders);
     
   } catch (error) {
+    console.error(error);
     if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
