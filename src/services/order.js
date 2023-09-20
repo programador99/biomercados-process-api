@@ -259,7 +259,7 @@ export const constructBestSellingProductsPerWeek = async () => {
     };
 
     if (categoriesList.some(item => item.id == -1 && item.storeId == ordersInStore) == false)
-      categoriesList.push(categoryBioinsuperable, /*categoryOferta, categoryNews*/);
+      categoriesList.push(categoryBioinsuperable, categoryOferta, categoryNews);
     // }
 
     // let categoryIds = categoriesList.map(item => item.id);
