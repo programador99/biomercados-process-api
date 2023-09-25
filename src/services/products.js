@@ -174,6 +174,14 @@ const addCustomAtributes = (product, customAttributesMap) => {
       )
     );
 
+    const issoperunit = getBooleanValue(
+      parseInt(
+        product.custom_attributes.filter(
+          (attribute) => attribute.attribute_code == "issoperunit"
+        )[0]?.value
+      )
+    );
+
     let brand = product.custom_attributes.filter(
       (attribute) => attribute.attribute_code == "marca"
     )[0]?.value;
@@ -273,6 +281,7 @@ const addCustomAtributes = (product, customAttributesMap) => {
       sponsored,
       bioinsuperable,
       oferta,
+      issoperunit,
       brand,
       origin,
       packing,
