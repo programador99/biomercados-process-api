@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema({
   categories: Array,
   image: String,
   sponsored: Boolean,
+  issoperunit: Boolean,
   brand: Object,
   origin: Object,
   packing: Object,
