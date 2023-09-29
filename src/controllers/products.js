@@ -20,17 +20,16 @@ router.get("/create", async (req, res) => {
     });
 
     // Actualizando unidades
-    synchronizeProducts().catch(e => {
-      if (e.response?.status && e.response.data.message) {
-        throw { code: e.response.status, message: e.response.data.message };
-      } else {
-        throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
-      }
-    });
+    // synchronizeProducts().catch(e => {
+    //   if (e.response?.status && e.response.data.message) {
+    //     throw { code: e.response.status, message: e.response.data.message };
+    //   } else {
+    //     throw { code: 400, message: "Error en la insercion a la base de datos, por favor revisa los parametros e intenta nuevamente" }
+    //   }
+    // });
     res.status(200).json(products);
   } catch (error) {
-        console.error(error);
-        if (error.code && error.message) {
+    if (error.code && error.message) {
       registerLogError(error.message);
       res.status(error.code).json(error.message);
     } else {
@@ -91,6 +90,7 @@ router.post('/update', async (req, res) => {
     }
 
     let response = await updateProducts(update).catch(e => {
+      console.info(e);
       if (e.response.status && e.response.data.message) {
         throw { code: e.response.status, message: e.response.data.message };
       } else {

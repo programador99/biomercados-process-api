@@ -1,7 +1,7 @@
 import { httpGet } from "./axios";
 import Product from "../models/product";
 import TemporalProduct from "../models/temporalProducts";
-import { getCategoryForId } from "./category";
+import { getCategories, getCategoryForId } from "./category";
 import axios from "axios";
 
 const baseUrl =
@@ -13,7 +13,7 @@ const urlIntegrator = process.env.URL_INTEGRATOR;
 
 export const constructProducts = async () => {
   const quantityProductsTotal = await getQuantityProducts();
-  const quantityForProcess = 100;
+  const quantityForProcess = 1000;
   console.log("construyendo productos...");
   const sectionsForJob = createSectionsForProducts(
     quantityProductsTotal,
@@ -29,26 +29,55 @@ export const constructProducts = async () => {
     products = await TemporalProduct.insertMany(products);
     indexSectionGetMagento++;
   }
+  console.info("Productos temporales almacenados.");
 
-  await Product.deleteMany();
+  // Vaciar maestro de productos
+  // await Product.deleteMany();
   const storesCode = await getSitesStore();
 
   let indexSection = 0;
   console.info("Construyendo atributos...");
   const customAttributesMap = await constructCustomAtributes();
+  const masterProducts = await Product.find();
+  const createdProducts = [];
+
+  console.log("Insertando productos en DB");
+
   for await (const section of sectionsForJob) {
     products = await TemporalProduct.find({}, null, {
       skip: indexSection * quantityForProcess,
       limit: quantityForProcess,
     });
     products = await formatProducts(storesCode, products, customAttributesMap);
-    await Product.insertMany(products);
+    // await Product.insertMany(products);
+    // const masterProducts = await Product.find();
+    await createProduct(products, masterProducts, createdProducts);
     indexSection++;
   }
 
   products = await Product.find();
-  console.log("termino", products.length);
-  return products;
+  // console.log("Productos creados con exito", createdProducts.length);
+  return createdProducts;
+};
+
+// Crear productos no existentes
+const createProduct = async (products, masterProducts, createdProducts) => {
+  if (products) {
+    const createTailProducts = [];
+    for await (const product of products) {
+      const dbProduct = masterProducts.find(item => item.sku === product.sku);
+
+      if (!dbProduct) {
+        createTailProducts.push(product);
+        createdProducts.push(product.sku);
+      }
+    }
+
+    await Product.insertMany(createTailProducts);
+    console.log("Productos creados: ", createTailProducts.length);
+  }
+
+  return null;
 };
 
 const createSectionsForProducts = (
@@ -115,10 +144,11 @@ const getSitesStore = async () => {
 const formatProducts = async (storesCode, products, customAttributesMap) => {
   let formatingProducts = [];
   try {
+    const dbCategories = await getCategories();
     for await (let product of products) {
       product = JSON.parse(JSON.stringify(product));
       const stores = addProductStores(storesCode, product);
-      const categories = await addCategories(product);
+      const categories = await addCategories(product, dbCategories);
 
       const formatProduct = {
         image: addImageInProduct(product),
@@ -135,12 +165,14 @@ const formatProducts = async (storesCode, products, customAttributesMap) => {
   return formatingProducts;
 };
 
-const addCategories = async (product) => {
+const addCategories = async (product, dbCategories) => {
   let categories = [];
   const listCategoriesLinks = product.extension_attributes?.category_links;
   if (listCategoriesLinks && listCategoriesLinks.length != 0) {
+    // const categories = await getCategories();
     for await (const categoryLink of listCategoriesLinks) {
-      const category = await getCategoryForId(categoryLink.category_id);
+      // const category = await getCategoryForId(categoryLink.category_id);
+      const category = dbCategories.find(cat => cat?.id == categoryLink.category_id);
       categories.push(category);
     }
   }
@@ -359,12 +391,38 @@ export const updateProducts = async (update) => {
       JSON.stringify(await getProductforSku(productToUpdate.sku))
     );
     if (product) {
-      const upd = await Product.findOneAndUpdate(
-        { sku: productToUpdate.sku },
-        { $set: { stores: productToUpdate.stores } },
-        { new: true }
-      );
-      response.push(upd);
+      // const upd = await Product.findOneAndUpdate(
+      //   { sku: productToUpdate.sku },
+      //   { $set: { stores: productToUpdate.stores } },
+      //   { new: true }
+      // );
+      // response.push(upd);
+      const dbProduct = await Product.findOne({ sku: productToUpdate.sku });
+
+      if (dbProduct) {
+        for await (const storeProduct of productToUpdate.stores) {
+          const { stores } = dbProduct;
+          const indexStore = stores.findIndex(item => item.id == storeProduct.id);
+
+          if (indexStore >= 0) {
+            dbProduct.stores[indexStore].price = storeProduct.price;
+            dbProduct.stores[indexStore].stock = storeProduct.stock;
+            dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
+            dbProduct.stores[indexStore].oferta = storeProduct.oferta;
+          } else {
+            dbProduct.stores.push(storeProduct);
+          }
+        }
+        // Salvar cambios
+        await Product.findOneAndUpdate(
+          { sku: dbProduct.sku },
+          { $set: { stores: dbProduct.stores } },
+          { new: true }
+        );
+
+        response.push(dbProduct.sku);
+      }
+
     }
   }
   return response;
