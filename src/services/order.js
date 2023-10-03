@@ -231,7 +231,7 @@ export const constructBestSellingProductsPerWeek = async () => {
 
     const categoryBioinsuperable = {
       id: -1,
-      name: "Bioinsuperable",
+      name: "Bioinsuperables",
       storeId: ordersInStore,
       category_route: "/store/search?search=bioinsuperable",
       brand: getCategoryBrandMoreSeller('-1'),
