@@ -386,6 +386,12 @@ const constructCustomAtributes = async () => {
 
 export const updateProducts = async (update) => {
   let response = [];
+
+  // Validar formato de tienda en lista
+  if( update.some( productItem => productItem.stores.some( storeItem => typeof storeItem.id === 'number')) ) {
+    throw "Invalid payload for update product!";
+  }
+
   for await (const productToUpdate of update) {
     let product = JSON.parse(
       JSON.stringify(await getProductforSku(productToUpdate.sku))
