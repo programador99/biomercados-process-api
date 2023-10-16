@@ -388,7 +388,7 @@ export const updateProducts = async (update) => {
   let response = [];
 
   // Validar formato de tienda en lista
-  if( update.some( productItem => productItem.stores.some( storeItem => typeof storeItem.id === 'number')) ) {
+  if (update.some(productItem => productItem.stores.some(storeItem => typeof storeItem.id === 'number'))) {
     throw "Invalid payload for update product!";
   }
 
@@ -411,8 +411,13 @@ export const updateProducts = async (update) => {
           const indexStore = stores.findIndex(item => item.id == storeProduct.id);
 
           if (indexStore >= 0) {
-            dbProduct.stores[indexStore].price = storeProduct.price;
-            dbProduct.stores[indexStore].stock = storeProduct.stock;
+            // Actualizacion por metodo
+            if (storeProduct?.price)
+              dbProduct.stores[indexStore].price = storeProduct.price;
+            if (storeProduct?.stock)
+              dbProduct.stores[indexStore].stock = storeProduct.stock;
+
+            // Siempre se actualiza
             dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
             dbProduct.stores[indexStore].oferta = storeProduct.oferta;
           } else {
