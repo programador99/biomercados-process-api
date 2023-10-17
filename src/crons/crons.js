@@ -64,7 +64,7 @@ export const runJobs = () => {
   });
 
   // Trabajos ejecutados el lunes y viernes a las 00:00
-  cron.schedule("0 0 * * 1,5", async () => {
+  cron.schedule("0 0 * * *", async () => {
     console.log("comenzo proceso de cada semana");
     // Construccion de productos mas vendidos
     await constructBestSellingProductsPerWeek().catch((e) => {
