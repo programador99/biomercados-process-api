@@ -411,7 +411,7 @@ export const updateProducts = async (update) => {
           const indexStore = stores.findIndex(item => item.id == storeProduct.id);
 
           if (indexStore >= 0) {
-            // Actualizacion por metodo
+            // Actualizacion por metodo certificado a QA
             if (storeProduct?.price)
               dbProduct.stores[indexStore].price = storeProduct.price;
             if (storeProduct?.stock)
