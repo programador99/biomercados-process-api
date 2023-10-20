@@ -405,8 +405,14 @@ export const updateProducts = async (update) => {
       // response.push(upd);
       const dbProduct = await Product.findOne({ sku: productToUpdate.sku });
 
+      if (productToUpdate?.name)
+        dbProduct.tax = productToUpdate.name;
       if (productToUpdate?.tax)
         dbProduct.tax = productToUpdate.tax / 100;
+      if (productToUpdate?.weight)
+        dbProduct.weight = productToUpdate.weight;
+      if (productToUpdate?.categories)
+        dbProduct.categories = productToUpdate.categories;
 
       if (dbProduct) {
         for await (const storeProduct of productToUpdate.stores) {
