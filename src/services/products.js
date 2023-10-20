@@ -392,6 +392,8 @@ export const updateProducts = async (update) => {
     throw "Invalid payload for update product!";
   }
 
+  console.info(update)
+
   for await (const productToUpdate of update) {
     let product = JSON.parse(
       JSON.stringify(await getProductforSku(productToUpdate.sku))
