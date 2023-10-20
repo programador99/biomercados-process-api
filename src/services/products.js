@@ -392,8 +392,6 @@ export const updateProducts = async (update) => {
     throw "Invalid payload for update product!";
   }
 
-  console.info(update)
-
   for await (const productToUpdate of update) {
     let product = JSON.parse(
       JSON.stringify(await getProductforSku(productToUpdate.sku))
@@ -407,6 +405,9 @@ export const updateProducts = async (update) => {
       // response.push(upd);
       const dbProduct = await Product.findOne({ sku: productToUpdate.sku });
 
+      if (productToUpdate?.tax)
+        dbProduct.tax = productToUpdate.tax / 100;
+
       if (dbProduct) {
         for await (const storeProduct of productToUpdate.stores) {
           const { stores } = dbProduct;
@@ -418,8 +419,6 @@ export const updateProducts = async (update) => {
               dbProduct.stores[indexStore].price = storeProduct.price;
             if (storeProduct?.stock)
               dbProduct.stores[indexStore].stock = storeProduct.stock;
-            if (storeProduct?.tax)
-              dbProduct.tax = storeProduct.tax;
 
             // Siempre se actualiza
             dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
@@ -431,7 +430,7 @@ export const updateProducts = async (update) => {
         // Salvar cambios
         await Product.findOneAndUpdate(
           { sku: dbProduct.sku },
-          { $set: { stores: dbProduct.stores } },
+          { $set: { ...dbProduct?._doc, stores: dbProduct.stores } },
           { new: true }
         );
 
