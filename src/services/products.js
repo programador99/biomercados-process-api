@@ -417,7 +417,7 @@ export const updateProducts = async (update) => {
             if (storeProduct?.stock)
               dbProduct.stores[indexStore].stock = storeProduct.stock;
             if (storeProduct?.tax)
-              dbProduct.stores[indexStore].tax = storeProduct.tax;
+              dbProduct.tax = storeProduct.tax;
 
             // Siempre se actualiza
             dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
