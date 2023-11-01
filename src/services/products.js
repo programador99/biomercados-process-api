@@ -423,7 +423,7 @@ export const updateProducts = async (update) => {
             // Actualizacion por metodo certificado a QA
             if (storeProduct?.price)
               dbProduct.stores[indexStore].price = storeProduct.price;
-            if (storeProduct?.stock)
+            if (storeProduct?.stock || storeProduct?.stock === 0)
               dbProduct.stores[indexStore].stock = storeProduct.stock;
 
             // Siempre se actualiza
@@ -433,6 +433,7 @@ export const updateProducts = async (update) => {
             dbProduct.stores.push(storeProduct);
           }
         }
+
         // Salvar cambios
         await Product.findOneAndUpdate(
           { sku: dbProduct.sku },
