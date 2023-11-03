@@ -431,8 +431,8 @@ export const updateProducts = async (update) => {
               dbProduct.stores[indexStore].oferta = storeProduct.oferta;
 
             // Siempre se actualiza
-            dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
-            dbProduct.stores[indexStore].oferta = storeProduct.oferta;
+            // dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
+            // dbProduct.stores[indexStore].oferta = storeProduct.oferta;
           } else {
             dbProduct.stores.push(storeProduct);
           }
