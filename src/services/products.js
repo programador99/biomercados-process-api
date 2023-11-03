@@ -425,6 +425,10 @@ export const updateProducts = async (update) => {
               dbProduct.stores[indexStore].price = storeProduct.price;
             if (storeProduct?.stock || storeProduct?.stock === 0)
               dbProduct.stores[indexStore].stock = storeProduct.stock;
+            if(storeProduct?.bioinsuperable || storeProduct?.bioinsuperable === false)
+              dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
+            if(storeProduct?.oferta || storeProduct?.oferta === false)
+              dbProduct.stores[indexStore].oferta = storeProduct.oferta;
 
             // Siempre se actualiza
             dbProduct.stores[indexStore].bioinsuperable = storeProduct.bioinsuperable;
